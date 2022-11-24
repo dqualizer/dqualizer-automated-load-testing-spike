@@ -1,0 +1,105 @@
+{
+  "name": "FirstScript",
+  "baseURL": "http://127.0.0.1:8080/books",
+  "options": {
+    "vus": 3,
+    "duration": "10s",
+    "tags": {
+      "api_name": "MyAPI"
+    },
+    "thresholds": {
+      "http_req_failed": ["rate < 0.05"],
+      "http_req_duration": ["p(90)<150", "p(95) < 200"],
+      "http_req_duration{group:home}": [{
+        "threshold": "p(95)<300",
+        "abortOnFail": false
+      }]
+    }
+  },
+  "requests": [
+    {
+      "type": "GET",
+      "path": "/all",
+      "params": {
+        "headers": {},
+        "cookies": {
+          "admin": "example.admin",
+          "user": "example.user"
+        },
+        "tags": {
+          "group": "home",
+          "test": "text"
+        }
+      },
+      "checks": {
+        "status": 200,
+        "body": {
+          "min-length": 1,
+          "includes": "id"
+        },
+        "error_code": 0
+      }
+    },
+    {
+      "type": "GET",
+      "path": "/1",
+      "payload": {
+        "name": "Test Book",
+        "author": "Julia",
+        "releaseDate": "2000-01-01"
+      },
+      "params": {
+        "headers": {
+          "content-type": "application/json"
+        }
+      },
+      "checks": {
+        "status": 200
+      }
+    },
+    {
+      "type": "POST",
+      "path": "/new",
+      "payload": {
+        "name": "Smart Stories",
+        "author": "Julia",
+        "releaseDate": "2005-10-10"
+      },
+      "params": {
+        "headers": {
+          "content-type": "application/json"
+        },
+        "timeout": "10s"
+      },
+      "checks": {
+        "status": 201,
+        "OR-status": 409
+      }
+    },
+    {
+      "type": "PUT",
+      "path": "/1",
+      "payload": {
+        "name": "Mediocre Stories",
+        "author": "Nils",
+        "releaseDate": "2015-11-10"
+      },
+      "params": {
+        "headers": {
+          "content-type": "application/json"
+        }
+      },
+      "checks": {
+        "status": 200,
+        "OR-status": 201
+      }
+    },
+    {
+      "type": "DELETE",
+      "path": "/2",
+      "checks": {
+        "status": 204
+      }
+    }
+  ]
+}
