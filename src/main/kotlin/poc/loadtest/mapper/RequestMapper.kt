@@ -9,7 +9,10 @@ import java.util.logging.Logger
 
 @Component
 class RequestMapper(
-    private val httpMapper: HttpMapper
+    private val httpMapper: HttpMapper,
+    private val paramsMapper: ParamsMapper,
+    private val payloadMapper: PayloadMapper,
+    private val checksMapper: ChecksMapper
 ): k6Mapper {
 
     val logger: Logger = Logger.getGlobal()
@@ -36,11 +39,11 @@ class RequestMapper(
         val requestBuilder = StringBuilder()
 
         if(request.has("params")) {
-            val paramsScript = "//TODO"
+            val paramsScript = paramsMapper.map(request, requestIndex)
             requestBuilder.append(paramsScript)
         }
         if(request.has("payload")) {
-            val payloadScript = "//TODO"
+            val payloadScript = payloadMapper.map(request, requestIndex)
             requestBuilder.append(payloadScript)
         }
 
@@ -48,7 +51,7 @@ class RequestMapper(
         requestBuilder.append(httpScript)
 
         if(request.has("checks")) {
-            val checksScript = "//TODO"
+            val checksScript = checksMapper.map(request, requestIndex)
             requestBuilder.append(checksScript)
         }
         requestBuilder.append(sleepScript())

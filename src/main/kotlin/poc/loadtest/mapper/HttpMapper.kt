@@ -23,14 +23,14 @@ class HttpMapper: k6Mapper {
 
         var extraParams = ""
         if(request.has("payload") || request.has("params")) {
-            if(request.has("payload") && request.has("params")) {
-                extraParams = String.format(", JSON.stringify(payload%d), params%d",
-                    requestIndex, requestIndex);
-            }
-            else if(request.has("payload"))
-                extraParams = String.format(", JSON.stringify(payload%d)", requestIndex);
-            else
-                extraParams = String.format(", params%d", requestIndex);
+            extraParams =
+                if(request.has("payload") && request.has("params")) {
+                    String.format(", JSON.stringify(payload%d), params%d",
+                        requestIndex, requestIndex);
+                } else if(request.has("payload"))
+                    String.format(", JSON.stringify(payload%d)", requestIndex);
+                else
+                    String.format(", params%d", requestIndex);
         }
 
         return String.format("%slet response%d = http.%s(baseURL + '%s'%s);%s",

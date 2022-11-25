@@ -5,6 +5,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import poc.config.PathConfig
 import poc.config.TestConfig
+import poc.export.OTExporter
 import poc.loadtest.exception.RunnerFailedException
 import poc.util.ProcessLogger
 import java.util.logging.Logger
@@ -15,8 +16,9 @@ class CLRunner(
     private val paths: PathConfig,
     private val loader: ConfigLoader,
     private val parser: ConfigParser,
-
     private val processLogger: ProcessLogger,
+    private val exporter: OTExporter,
+    private val increaser: LoadIncreaser,
 
     private var scriptPath: String = paths.getScript(),
     private var outputPath: String = paths.getOutput(tests.getOutputType()),
@@ -47,10 +49,10 @@ class CLRunner(
         for(currentLoop in 0 until maxLoop) {
             parser.parse(config, scriptPath)
             logger.info("### CONFIG WAS PARSED INTO SCRIPT ###")
-            var exitCode = this.runCommand()
-            //TODO OTel Exporter
+            val exitCode = this.runCommand()
+            exporter.export(outputPath)
 
-            //TODO LoadIncreaser for Breakpoint Testing
+            if(isBreakpointEnabled) config = increaser.increaseLoad(config)
             if(exitCode == thresholdHaveFailedErrorCode) break;
         }
     }
