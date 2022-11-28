@@ -5,7 +5,7 @@ COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
 
-RUN mvn kotlin:compile && mvn install -DskipTests && mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+RUN mvn install -DskipTests && mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM openjdk:17-jdk-slim
 
