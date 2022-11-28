@@ -20,11 +20,11 @@ class CLRunner(
     private val exporter: OTExporter,
     private val increaser: LoadIncreaser,
 
-    private var scriptPath: String = paths.getScript(),
-    private var outputPath: String = paths.getOutput(tests.getOutputType()),
-    private var loggingPath: String = paths.getLogging(),
-    private var isBreakpointEnabled: Boolean = tests.getBreakpointConfig(),
-    private var maxLoop: Int = tests.getMaxLoops()
+    private val scriptPath: String = paths.getScript(),
+    private val outputPath: String = paths.getOutput(tests.getOutputType()),
+    private val loggingPath: String = paths.getLogging(),
+    private val isBreakpointEnabled: Boolean = tests.getBreakpointConfig(),
+    private val maxLoop: Int = tests.getMaxLoops()
 ) {
 
     val logger: Logger = Logger.getLogger(this.javaClass.name)

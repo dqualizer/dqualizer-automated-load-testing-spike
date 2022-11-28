@@ -13,16 +13,16 @@ class JSONMetricCreaterHelper {
         val count = results.size
         val average = sum/count
 
-        if(average.isNaN()) throw IllegalArgumentException("Average value is not a number (NaN")
+        if(average.isNaN()) throw IllegalArgumentException("Average value is not a number (NaN)")
         else return average
     }
 
     fun getMaxLoad(results: List<JSONObject>): Double {
         val maxLoad = results.stream()
             .map { result -> result.getJSONObject("data").getDouble("value") }.toList()
-            .maxOrNull() ?: 0.0
+            .maxOrNull()
 
-        return maxLoad
+        return maxLoad ?: 0.0
     }
 
     fun getAmount(results: List<JSONObject>): Double {
