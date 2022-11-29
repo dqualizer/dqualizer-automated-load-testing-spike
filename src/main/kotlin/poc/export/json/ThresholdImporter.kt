@@ -42,7 +42,12 @@ class ThresholdImporter(
         val metrics = mutableListOf<MetricData>()
 
         for(index in 0 until thresholds.length()) {
-            val threshold = thresholds.getString(index)
+            val thresholdObject = thresholds.get(index)
+
+            var threshold = ""
+            if(thresholdObject is JSONObject) threshold = thresholdObject.getString("threshold")
+            else if(thresholdObject is String) threshold = thresholdObject
+
             //remove logical operator and everything after
             val aggregation = threshold.replace("(?=<=|<|>|>=|!=|==)([^=].*)".toRegex(), "").trim()
             //remove logical operator and everything before

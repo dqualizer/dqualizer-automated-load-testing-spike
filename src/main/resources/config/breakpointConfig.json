@@ -32,13 +32,7 @@
           "delayAbortEval": "1s"
         }
       ],
-      "checks": [
-        {
-          "threshold": "rate>0.9",
-          "abortOnFail": true,
-          "delayAbortEval": "1s"
-        }
-      ],
+      "checks": ["rate>0.9"],
       "http_req_duration{test_type:breakpoint}": [
         {
           "threshold": "p(99.99)<28",
