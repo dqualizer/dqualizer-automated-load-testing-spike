@@ -3,11 +3,11 @@ package poc.loadtest.mapper
 import org.json.JSONObject
 import org.springframework.stereotype.Component
 import poc.loadtest.exception.UnknownRequestTypeException
-import poc.loadtest.mapper.k6Mapper.Companion.newLine
+import poc.loadtest.mapper.K6Mapper.Companion.newLine
 import java.util.*
 
 @Component
-class HttpMapper: k6Mapper {
+class HttpMapper: K6Mapper {
 
     override fun map(request: JSONObject, requestIndex: Int): String {
         val path = request.getString("path")
@@ -24,16 +24,14 @@ class HttpMapper: k6Mapper {
         var extraParams = ""
         if(request.has("payload") || request.has("params")) {
             extraParams =
-                if(request.has("payload") && request.has("params")) {
-                    String.format(", JSON.stringify(payload%d), params%d",
-                        requestIndex, requestIndex);
-                } else if(request.has("payload"))
-                    String.format(", JSON.stringify(payload%d)", requestIndex);
+                if(request.has("payload") && request.has("params"))
+                    ", JSON.stringify(payload$requestIndex), params$requestIndex"
+                else if(request.has("payload"))
+                    ", JSON.stringify(payload$requestIndex)"
                 else
-                    String.format(", params%d", requestIndex);
+                    ", params$requestIndex"
         }
 
-        return String.format("%slet response%d = http.%s(baseURL + '%s'%s);%s",
-            newLine, requestIndex, method, path, extraParams, newLine);
+        return "${newLine}let response$requestIndex = http.$method(baseURL + '$path'$extraParams);$newLine"
     }
 }

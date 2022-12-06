@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 import poc.export.metric.ResultType
 import java.io.FileInputStream
 import java.io.InputStreamReader
-import java.util.*
 import java.util.stream.Stream
 
 @Component
@@ -21,6 +20,8 @@ class CSVImporter(private val metricCreater: CSVMetricCreater) {
         val vus = this.filterMetric(csv, "vus")
         val data_sent = this.filterMetric(csv, "data_sent")
         val data_received = this.filterMetric(csv, "data_received")
+        val data_sent_endpoint = filterMetric(csv, "data_sent_endpoint")
+        val data_received_endpoint = filterMetric(csv, "data_received_endpoint")
 
         val checks = this.filterMetric(csv, "checks")
         val iteration_duration = filterMetric(csv, "iteration_duration")
@@ -31,6 +32,8 @@ class CSVImporter(private val metricCreater: CSVMetricCreater) {
         val vusMetric = metricCreater.createGaugeMetricList(vus, "vus", "1")
         val dataSentMetric = metricCreater.createGaugeMetricList(data_sent, "data_sent", "B")
         val dataReceivedMetric = metricCreater.createGaugeMetricList(data_received, "data_received", "B")
+        val dataSentEndpointMetric = metricCreater.createGaugeMetricList(data_sent_endpoint, "data_sent_endpoint", "B")
+        val dataReceivedEndpointMetric = metricCreater.createGaugeMetricList(data_received_endpoint, "data_received_endpoint", "B")
 
         val checksMetric = metricCreater.createSingleGaugeMetric(checks, ResultType.CHECKS)
         val vusMaxMetric = metricCreater.createSingleGaugeMetric(vus, ResultType.MAX_LOAD)
@@ -38,7 +41,7 @@ class CSVImporter(private val metricCreater: CSVMetricCreater) {
         val iterationsCounterMetric = metricCreater.createSingleGaugeMetric(iterations, ResultType.ITERATIONS)
         val requestCounterMetric = metricCreater.createSingleGaugeMetric(http_req_count, ResultType.HTTP_REQS)
 
-        return this.combineData(requestMetric, vusMetric, dataSentMetric, dataReceivedMetric,
+        return this.combineData(requestMetric, vusMetric, dataSentMetric, dataReceivedMetric, dataSentEndpointMetric, dataReceivedEndpointMetric,
             checksMetric, vusMaxMetric, iterationMetric, iterationsCounterMetric, requestCounterMetric)
 
     }

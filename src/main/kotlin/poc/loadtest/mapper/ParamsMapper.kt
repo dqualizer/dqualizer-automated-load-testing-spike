@@ -2,16 +2,15 @@ package poc.loadtest.mapper
 
 import org.json.JSONObject
 import org.springframework.stereotype.Component
-import poc.loadtest.mapper.k6Mapper.Companion.newLine
+import poc.loadtest.mapper.K6Mapper.Companion.newLine
 
 @Component
-class ParamsMapper: k6Mapper {
+class ParamsMapper: K6Mapper {
 
     override fun map(request: JSONObject, requestIndex: Int): String {
         val params = request.getJSONObject("params")
-        val payloadString = params.toString()
+        val paramsString = params.toString()
 
-        return String.format("%svar params%d = %s%s",
-            newLine, requestIndex, payloadString, newLine)
+        return "${newLine}var params$requestIndex = $paramsString$newLine"
     }
 }

@@ -1,10 +1,8 @@
 package poc.export.csv
 
-import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.AttributeKey.stringKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.sdk.metrics.data.MetricData
-import org.json.JSONObject
 import org.springframework.stereotype.Component
 import poc.export.metric.GaugeCreater
 import poc.export.metric.ResultType
@@ -48,7 +46,10 @@ class CSVMetricCreater(
         val data = mutableListOf<MetricData>()
 
         for(row in csv) {
-            val attributes = Attributes.empty()
+            val url = row[16]
+            var attributes = Attributes.empty()
+            if(url.isNotEmpty()) attributes = Attributes.of(stringKey("endpoint"), url)
+
             val metric = row[2].toDouble()
             val timestamp = row[1].toLong()
             val epochNanos = TimeUnit.SECONDS.toNanos(timestamp)

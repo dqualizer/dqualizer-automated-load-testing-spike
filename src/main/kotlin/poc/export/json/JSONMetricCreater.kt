@@ -1,6 +1,7 @@
 package poc.export.json
 
 import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.AttributeKey.stringKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.sdk.metrics.data.MetricData
 import org.json.JSONObject
@@ -30,8 +31,8 @@ class JSONMetricCreater(
                 val url = dataObject.getJSONObject("tags").getString("url")
                 val method = dataObject.getJSONObject("tags").getString("method")
                 val attributes = Attributes.builder()
-                    .put(AttributeKey.stringKey("endpoint"), url)
-                    .put(AttributeKey.stringKey("http_method"), method)
+                    .put(stringKey("endpoint"), url)
+                    .put(stringKey("http_method"), method)
                     .build()
 
                 val metric = dataObject.getDouble("value")
@@ -49,8 +50,13 @@ class JSONMetricCreater(
         val data = mutableListOf<MetricData>()
 
         for(result in results) {
-            val attributes = Attributes.empty()
             val dataObject = result.getJSONObject("data")
+            var attributes = Attributes.empty()
+            if(!dataObject.isNull("tags") && dataObject.getJSONObject("tags").has("url")) {
+                val url = dataObject.getJSONObject("tags").getString("url")
+                attributes = Attributes.of(stringKey("endpoint"), url)
+            }
+
             val metric = dataObject.getDouble("value")
             val time = dataObject.getString("time")
             val epochNanos = helper.getEpochNanos(time)

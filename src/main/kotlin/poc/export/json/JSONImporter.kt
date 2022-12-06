@@ -25,6 +25,8 @@ class JSONImporter(
         val vus = this.filterMetric(allResults, "vus")
         val data_sent = this.filterMetric(allResults, "data_sent")
         val data_received = this.filterMetric(allResults, "data_received")
+        val data_sent_endpoint = filterMetric(allResults, "data_sent_endpoint")
+        val data_received_endpoint = filterMetric(allResults, "data_received_endpoint")
 
         val checks = this.filterMetric(allResults, "checks")
         val iteration_duration = filterMetric(allResults, "iteration_duration")
@@ -35,6 +37,8 @@ class JSONImporter(
         val vusMetric = metricCreater.createGaugeMetricList(vus, "vus", "1")
         val dataSentMetric = metricCreater.createGaugeMetricList(data_sent, "data_sent", "B")
         val dataReceivedMetric = metricCreater.createGaugeMetricList(data_received, "data_received", "B")
+        val dataSentEndpointMetric = metricCreater.createGaugeMetricList(data_sent_endpoint, "data_sent_endpoint", "B")
+        val dataReceivedEndpointMetric = metricCreater.createGaugeMetricList(data_received_endpoint, "data_received_endpoint", "B")
 
         val checksMetric = metricCreater.createSingleGaugeMetric(checks, ResultType.CHECKS)
         val vusMaxMetric = metricCreater.createSingleGaugeMetric(vus, ResultType.MAX_LOAD)
@@ -43,7 +47,7 @@ class JSONImporter(
         val requestCounterMetric = metricCreater.createSingleGaugeMetric(http_req_count, ResultType.HTTP_REQS)
         val thresholds = thresholdImporter.importThreshold(allResults)
 
-        return this.combineData(requestMetric, vusMetric, dataSentMetric, dataReceivedMetric,
+        return this.combineData(requestMetric, vusMetric, dataSentMetric, dataReceivedMetric, dataSentEndpointMetric, dataReceivedEndpointMetric,
             checksMetric, vusMaxMetric, iterationMetric, iterationsCounterMetric, requestCounterMetric, thresholds)
     }
 

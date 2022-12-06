@@ -2,10 +2,10 @@ package poc.loadtest.mapper
 
 import org.json.JSONObject
 import org.springframework.stereotype.Component
-import poc.loadtest.mapper.k6Mapper.Companion.newLine
+import poc.loadtest.mapper.K6Mapper.Companion.newLine
 
 @Component
-class ChecksMapper: k6Mapper {
+class ChecksMapper: K6Mapper {
 
     override fun map(request: JSONObject, requestIndex: Int): String {
         val checks = request.getJSONObject("checks")
@@ -17,11 +17,9 @@ class ChecksMapper: k6Mapper {
             val statusScript =
                 if(checks.has("OR-status")) {
                     val orStatus = checks.getInt("OR-status")
-                    String.format("\t'%s status was %s/%s': x => x.status && (x.status == %s || x.status == %s),%s",
-                        type, status, orStatus, status, orStatus, newLine)
+                    "\t'$type status was $status/$orStatus': x => x.status && (x.status == $status || x.status == $orStatus),$newLine"
                 } else
-                    String.format("\t'%s status was %s': x => x.status && x.status == %s,%s",
-                        type, status, status, newLine)
+                    "\t'$type status was $status': x => x.status && x.status == $status,$newLine"
 
             checkBuilder.append(statusScript);
         }
@@ -30,26 +28,21 @@ class ChecksMapper: k6Mapper {
             val body = checks.getJSONObject("body")
             if(body.has("min-length")) {
                 val minLength = body.getInt("min-length")
-                val minLengthScript = String.format("\t'%s body size >= %d': x => x.body && x.body.length >= %d,%s",
-                    type, minLength, minLength, newLine)
+                val minLengthScript = "\t'$type body size >= $minLength': x => x.body && x.body.length >= $minLength,$newLine"
                 checkBuilder.append(minLengthScript)
             }
             if(body.has("includes")) {
                 val includes = body.getString("includes")
-                val includesScript = String.format("\t'body includes %s': x => x.body && x.body.includes('%s'),%s",
-                    includes, includes, newLine)
+                val includesScript = "\t'body includes $includes': x => x.body && x.body.includes('$includes'),$newLine"
                 checkBuilder.append(includesScript)
             }
         }
 
         if (checks.has("error_code")) {
             val errorCode = checks.getInt("error_code")
-            val errorCodeScript = String.format("\t'error_code was %d': x => x.error_code == %d,%s",
-                errorCode, errorCode, newLine)
+            val errorCodeScript = "\t'error_code was $errorCode': x => x.error_code == $errorCode,$newLine"
             checkBuilder.append(errorCodeScript)
         }
-
-        return String.format("check(response%d, {%s%s});%s",
-            requestIndex, newLine, checkBuilder, newLine);
+        return "check(response$requestIndex, {$newLine$checkBuilder});$newLine"
     }
 }

@@ -3,7 +3,7 @@ package poc.loadtest.mapper
 import org.json.JSONArray
 import org.json.JSONObject
 import org.springframework.stereotype.Component
-import poc.loadtest.mapper.k6Mapper.Companion.newLine
+import poc.loadtest.mapper.K6Mapper.Companion.newLine
 import java.util.*
 import java.util.logging.Logger
 
@@ -13,7 +13,7 @@ class RequestMapper(
     private val paramsMapper: ParamsMapper,
     private val payloadMapper: PayloadMapper,
     private val checksMapper: ChecksMapper
-): k6Mapper {
+): K6Mapper {
 
     val logger: Logger = Logger.getGlobal()
 
@@ -49,6 +49,7 @@ class RequestMapper(
 
         val httpScript = httpMapper.map(request, requestIndex)
         requestBuilder.append(httpScript)
+        requestBuilder.append(this.trackDataPerURLScript(requestIndex))
 
         if(request.has("checks")) {
             val checksScript = checksMapper.map(request, requestIndex)
@@ -59,21 +60,45 @@ class RequestMapper(
         return requestBuilder.toString()
     }
 
-    fun startScript(config: JSONObject): String {
+    private fun startScript(config: JSONObject): String {
         val baseURL = config.getString("baseURL")
         val options = config.getJSONObject("options").toString()
+        val trackDataPerURL = this.trackDataPerURLInitScript()
+
         return  "import http from 'k6/http';" + newLine +
-                "import {check, sleep} from 'k6';" + newLine +
+                "import {check, sleep} from 'k6';" +
+                trackDataPerURL + newLine + newLine +
                 "let baseURL = '$baseURL';" + newLine +
                 "export let options = $options;" + newLine + newLine +
                 "export default function() {" + newLine
     }
 
+    private fun trackDataPerURLInitScript(): String {
+        return """
+                import {Counter} from 'k6/metrics';
+                                
+                export const epDataSent = new Counter('data_sent_endpoint');
+                export const epDataRecv = new Counter('data_received_endpoint');
+                                
+                function sizeOfHeaders(headers) {
+                    return Object.keys(headers).reduce((sum, key) => sum + key.length + headers[key].length, 0);
+                }
+                
+                function trackDataMetricsPerURL(res) {
+                    epDataSent.add(sizeOfHeaders(res.request.headers) + res.request.body.length, { url: res.url });
+                    epDataRecv.add(sizeOfHeaders(res.headers) + res.body.length, { url: res.url });
+                }
+                """.trimIndent()
+    }
+
+    private fun trackDataPerURLScript(requestIndex: Int): String {
+        return "trackDataMetricsPerURL(response$requestIndex);$newLine"
+    }
+
     private fun sleepScript(): String {
         val random = Random()
         val duration = random.nextInt(5) + 1
-        return String.format("sleep(%d);%s",
-            duration, newLine)
+        return "sleep($duration);$newLine"
     }
 
     private fun isRequestValid(request: JSONObject): Boolean{
