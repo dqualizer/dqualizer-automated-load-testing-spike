@@ -55,7 +55,7 @@ services:
   # Not in use
   prometheus:
     image: prom/prometheus:v2.36.2
-    container_name: "k6-java-prometheus"
+    container_name: "k6-kotlin-prometheus"
     command: [ "--config.file=/etc/prometheus/prometheus.yml" ]
     volumes:
       - ./docker-config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
